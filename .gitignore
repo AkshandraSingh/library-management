@@ -1,0 +1,5 @@
+\node_modules
+\libraryenv
+\package-lock.json
+\.env
+\.vscode
