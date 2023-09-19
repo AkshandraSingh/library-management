@@ -5,11 +5,8 @@ const isUser = async (req, res, next) => {
         const isUserEmailExist = await userModel.findOne({
             userEmail: req.body.userEmail
         })
-        const isUserPhoneExist = await userModel.findOne({
-            userPhone: req.body.userPhone
-        })
-        if (isUserEmailExist || isUserPhoneExist) {
-            if (req.body.userRole === "user") {
+        if (isUserEmailExist) {
+            if (isUserEmailExist.userRole === "user") {
                 next()
             } else {
                 res.status(400).send({
