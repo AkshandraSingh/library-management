@@ -257,6 +257,7 @@ const setNewPassword = async (req, res) => {
         })
     }
 }
+
 // Exporting api
 module.exports = {
     signupUser,
