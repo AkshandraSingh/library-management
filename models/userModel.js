@@ -33,7 +33,7 @@ const userModel = new mongoose.Schema({
         type: [],
         required: [],
     },
-    usedPassword: {
+    usedPasswords: {
         type: [],
         required: [],
     },
