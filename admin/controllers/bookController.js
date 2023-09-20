@@ -1,5 +1,6 @@
 const bookModel = require('../../models/booksModel');
 const categoryModel = require('../../models/categoryModel')
+const reviewModel = require('../../models/reviewsModel')
 
 const addBook = async (req, res) => {
     try {
@@ -71,7 +72,7 @@ const editBook = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error: Unable to add the book",
+            message: "Error",
             error: error.message,
         });
     }
@@ -99,7 +100,7 @@ const deleteBook = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error: Unable to add the book",
+            message: "Error",
             error: error.message,
         });
     }
@@ -127,7 +128,7 @@ const searchBookByName = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error: Unable to add the book",
+            message: "Error",
             error: error.message,
         });
     }
@@ -157,7 +158,39 @@ const searchBookByCategory = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error: Unable to add the book",
+            message: "Error",
+            error: error.message,
+        });
+    }
+}
+
+const bookDetails = async (req, res) => {
+    try {
+        const { bookId } = req.params
+        const bookData = await bookModel.findById(bookId)
+        const bookSelectedData = await bookModel.findById(bookId).select('bookName bookDescription bookAuthor bookCategory bookImage bookCost')
+        if (bookData) {
+            let isAvailable = "Available"
+            if (bookData.bookStatus != "Available") {
+                isAvailable = "not available"
+            }
+            const reviewData = await reviewModel.find({
+                bookId: bookId
+            }).select('rating')
+            const totalRating = reviewData.reduce((sum, review) => sum + review.rating, 0);
+            const averageRating = totalRating / reviewData.length;
+            res.status(200).send({
+                success: true,
+                message: "Book Details",
+                isAvailable: isAvailable,
+                bookData: bookSelectedData,
+                averageRating: averageRating,
+            })
+        }
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error",
             error: error.message,
         });
     }
@@ -170,4 +203,5 @@ module.exports = {
     deleteBook,
     searchBookByName,
     searchBookByCategory,
+    bookDetails,
 }

@@ -10,5 +10,6 @@ bookRouter.patch('/editBook/:bookId', bookController.editBook);
 bookRouter.delete('/deleteBook/:bookId', bookController.deleteBook)
 bookRouter.get('/searchBookByName/:bookName', bookController.searchBookByName)
 bookRouter.get('/searchBookByCategory/:categoryName', bookController.searchBookByCategory)
+bookRouter.get('/bookDetails/:bookId', bookController.bookDetails)
 
 module.exports = bookRouter;

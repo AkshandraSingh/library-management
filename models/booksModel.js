@@ -23,7 +23,7 @@ const booksModel = new mongoose.Schema({
     },
     bookStatus: {
         type: String,
-        default: "free",
+        default: "available",
     },
     bookCost: {
         type: Number,
