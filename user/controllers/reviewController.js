@@ -75,8 +75,35 @@ const deleteReview = async (req, res) => {
     }
 }
 
+const allReviewsOfBook = async (req, res) => {
+    try {
+        const { bookId } = req.params
+        const reviewData = await reviewModel.find({
+            bookId: bookId
+        }).select('review rating')
+        if (reviewData.length <= 0) {
+            return res.status(401).send({
+                success: false,
+                message: "No review found!"
+            })
+        }
+        res.status(200).send({
+            success: true,
+            message: "Reviews found",
+            review: reviewData,
+        })
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: "Error",
+            error: error.message,
+        })
+    }
+}
+
 module.exports = {
     addReview,
     editReview,
     deleteReview,
+    allReviewsOfBook,
 }
