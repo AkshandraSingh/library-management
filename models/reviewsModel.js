@@ -9,6 +9,16 @@ const reviewModel = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    bookId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'books',
+        required: true
+    },
+    userId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'user',
+        required: true
+    },
     isActive: {
         type: Boolean,
         default: true,
