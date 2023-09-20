@@ -21,6 +21,14 @@ const booksModel = new mongoose.Schema({
         type: String,
         required: true,
     },
+    bookStatus: {
+        type: String,
+        default: "free",
+    },
+    bookCost: {
+        type: Number,
+        required: true,
+    },
     isActive: {
         type: Boolean,
         default: true,
