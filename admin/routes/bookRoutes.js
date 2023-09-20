@@ -8,5 +8,7 @@ const bookRouter = express.Router();
 bookRouter.post('/addBook', imageStorage.bookImageUpload.single('bookImage'), bookController.addBook);
 bookRouter.patch('/editBook/:bookId', bookController.editBook);
 bookRouter.delete('/deleteBook/:bookId', bookController.deleteBook)
+bookRouter.get('/searchBookByName/:bookName', bookController.searchBookByName)
+bookRouter.get('/searchBookByCategory/:categoryName', bookController.searchBookByCategory)
 
 module.exports = bookRouter;
