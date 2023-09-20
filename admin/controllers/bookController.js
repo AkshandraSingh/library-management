@@ -35,6 +35,65 @@ const addBook = async (req, res) => {
     }
 };
 
+const editBook = async (req, res) => {
+    try {
+        const { bookId } = req.params
+        const bookImage = req.file ? `/upload/booksImages/${req.file.filename}` : undefined;
+        const bookData = await bookModel.findByIdAndUpdate(bookId, {
+            bookName: req.body.bookName || undefined,
+            bookDescription: req.body.bookDescription || undefined,
+            bookAuthor: req.body.bookAuthor || undefined,
+            bookImage: bookImage,
+        }, {
+            new: true,
+        })
+        if (bookData) {
+            return res.status(200).send({
+                success: true,
+                message: "Book updated!",
+                bookData: bookData,
+            })
+        }
+        res.status(401).send({
+            success: false,
+            message: "Book not found!"
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error: Unable to add the book",
+            error: error.message,
+        });
+    }
+}
+
+const deleteBook = async (req, res) => {
+    try {
+        const { bookId } = req.params
+        const bookData = await bookModel.findByIdAndDelete(bookId);
+        if (bookData) {
+            return res.status(200).send({
+                success: true,
+                message: "Book deleted!",
+                bookDeleteData: bookData,
+            })
+        }
+        res.status(401).send({
+            success: false,
+            message: "Book not found!"
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Error: Unable to add the book",
+            error: error.message,
+        });
+    }
+}
+
+
 module.exports = {
     addBook,
+    editBook,
+    deleteBook,
 }
