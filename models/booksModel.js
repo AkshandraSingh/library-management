@@ -13,10 +13,6 @@ const booksModel = new mongoose.Schema({
         type: String,
         required: true,
     },
-    bookPdf: {
-        type: String,
-        required: true,
-    },
     bookCategory: {
         type: String,
         required: true,
