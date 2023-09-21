@@ -280,6 +280,77 @@ const setNewPassword = async (req, res) => {
     }
 }
 
+const viewProfile = async (req, res) => {
+    try {
+        // Takeing userId from params
+        const { userId } = req.params
+        // Extract user data from database by using userId and show only few Fields
+        const userData = await userModel.findById(userId).select('userName userPhone userEmail userAddress userProfilePic borrowBooks');
+        if (userData) {
+            userLogger.log('info', 'User Profile Showed')
+            res.status(200).send({
+                success: true,
+                message: "Your profile!",
+                userProfile: userData,
+            })
+        } else {
+            // if user id is not correct
+            userLogger.log('error', 'User not found!')
+            res.status(400).send({
+                success: false,
+                message: "User not found!"
+            })
+        }
+    } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
+
+const editProfile = async (req, res) => {
+    try {
+        // Takeing userId from params
+        const { userId } = req.params
+        // changing profile pic path
+        const userProfilePic = req.file ? `/upload/userProfile/${req.file.filename}` : undefined;
+        // updating the user data 
+        const userData = await userModel.findByIdAndUpdate(userId, {
+            userName: req.body.userName || undefined,
+            userPhone: req.body.userPhone || undefined,
+            userAddress: req.body.userAddress || undefined,
+            userProfilePic: userProfilePic || undefined,
+        }, {
+            new: true,
+        })
+        if (userData) {
+            userLogger.log('info', 'User profile is edited!')
+            res.status(200).send({
+                success: true,
+                message: "User profile is edited!",
+                userProfile: userData,
+            })
+        } else {
+            // if user id is not correct
+            userLogger.log('error', 'User not found!')
+            res.status(401).send({
+                success: false,
+                message: "User not found!"
+            })
+        }
+    } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
+
 // Exporting api
 module.exports = {
     signupUser,
@@ -287,4 +358,6 @@ module.exports = {
     forgetPassword,
     resetPassword,
     setNewPassword,
+    viewProfile,
+    editProfile,
 }
