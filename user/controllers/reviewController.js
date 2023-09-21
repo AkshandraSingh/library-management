@@ -1,9 +1,11 @@
 const reviewModel = require('../../models/reviewsModel')
+const reviewLogger = require('../../utils/reviewLogger/reviewLogger')
 
 const addReview = async (req, res) => {
     try {
         const { userId, bookId } = req.params
         if (req.body.rating > 5) {
+            reviewLogger.log('error', 'Rating limit is 5')
             return res.status(401).send({
                 success: false,
                 message: "Rating limit is 5"
@@ -13,11 +15,13 @@ const addReview = async (req, res) => {
         reviewData.userId = userId
         reviewData.bookId = bookId
         await reviewData.save()
+        reviewLogger.log('info', 'Review created!')
         res.status(201).send({
             success: true,
             message: "Review created!"
         })
     } catch (error) {
+        reviewLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error",
@@ -31,6 +35,7 @@ const editReview = async (req, res) => {
         const { reviewId } = req.params
         if (req.body.rating) {
             if (req.body.rating > 5) {
+                reviewLogger.log('error', 'Rating limit is 5')
                 return res.status(401).send({
                     success: false,
                     message: "Rating limit is 5"
@@ -43,12 +48,14 @@ const editReview = async (req, res) => {
         }, {
             new: true,
         })
+        reviewLogger.log('info', 'Review is updated!')
         res.status(200).send({
             success: true,
             message: "Review is updated!",
             review: reviewData,
         })
     } catch (error) {
+        reviewLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error",
@@ -61,12 +68,14 @@ const deleteReview = async (req, res) => {
     try {
         const { reviewId } = req.params
         const reviewData = await reviewModel.findByIdAndDelete(reviewId)
+        reviewLogger.log('info', 'Review is deleted!')
         res.status(200).send({
             success: true,
             message: "Review is deleted!",
             review: reviewData,
         })
     } catch (error) {
+        reviewLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error",
@@ -82,17 +91,20 @@ const allReviewsOfBook = async (req, res) => {
             bookId: bookId
         }).select('review rating')
         if (reviewData.length <= 0) {
+            reviewLogger.log('error', 'No review found!')
             return res.status(401).send({
                 success: false,
                 message: "No review found!"
             })
         }
+        reviewLogger.log('info', 'Reviews found')
         res.status(200).send({
             success: true,
             message: "Reviews found",
             review: reviewData,
         })
     } catch (error) {
+        reviewLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error",

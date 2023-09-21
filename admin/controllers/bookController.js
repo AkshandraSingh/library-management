@@ -1,6 +1,7 @@
 const bookModel = require('../../models/booksModel');
 const categoryModel = require('../../models/categoryModel')
 const reviewModel = require('../../models/reviewsModel')
+const bookLogger = require('../../utils/bookLogger/bookLogger')
 
 const addBook = async (req, res) => {
     try {
@@ -12,6 +13,7 @@ const addBook = async (req, res) => {
         })
         if (!isCategoryExist) {
             // if category not found
+            bookLogger.log('error', 'Category not exist in database')
             return res.status(401).send({
                 success: false,
                 message: "Category not exist in database",
@@ -27,6 +29,7 @@ const addBook = async (req, res) => {
         });
         // save the book data
         await newBook.save();
+        bookLogger.log('info', 'Book added successfully')
         res.status(201).json({
             success: true,
             message: "Book added successfully",
@@ -34,6 +37,7 @@ const addBook = async (req, res) => {
         });
     } catch (error) {
         req.file ? unlinkSync(req.file.path) : null
+        userLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error: Unable to add the book",
@@ -58,6 +62,7 @@ const editBook = async (req, res) => {
         })
         if (bookData) {
             // if book id is correct
+            bookLogger.log('info', 'Book updated!')
             return res.status(200).send({
                 success: true,
                 message: "Book updated!",
@@ -65,11 +70,13 @@ const editBook = async (req, res) => {
             })
         }
         // if book data not found (BookId not correct)
+        bookLogger.log('error', 'Book not found!')
         res.status(401).send({
             success: false,
             message: "Book not found!"
         })
     } catch (error) {
+        bookLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error",
@@ -86,6 +93,7 @@ const deleteBook = async (req, res) => {
         const bookData = await bookModel.findByIdAndDelete(bookId);
         if (bookData) {
             // if book id is correct 
+            bookLogger.log('info', 'Book deleted!')
             return res.status(200).send({
                 success: true,
                 message: "Book deleted!",
@@ -93,11 +101,13 @@ const deleteBook = async (req, res) => {
             })
         }
         // if book data not found (BookId not correct
+        bookLogger.log('error', 'Book not found!')
         res.status(401).send({
             success: false,
             message: "Book not found!"
         })
     } catch (error) {
+        bookLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error",
@@ -114,18 +124,21 @@ const searchBookByName = async (req, res) => {
             .select('bookName bookImage');
         if (bookSearchData.length <= 0) {
             // not any book found
+            bookLogger.log('error', 'Book not found!')
             return res.status(400).send({
                 success: false,
                 message: "Book not found!"
             })
         }
         // if at least one book found
+        bookLogger.log('info', 'These books found')
         res.status(200).send({
             success: true,
             message: "These books found",
             bookFound: bookSearchData,
         })
     } catch (error) {
+        bookLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error",
@@ -142,6 +155,7 @@ const searchBookByCategory = async (req, res) => {
         })
         if (!isCategoryExist) {
             // if category not found
+            bookLogger.log('error', 'Category not exist in database')
             return res.status(401).send({
                 success: false,
                 message: "Category not exist in database",
@@ -150,12 +164,14 @@ const searchBookByCategory = async (req, res) => {
         const bookSearchData = await bookModel.find({
             bookCategory: categoryName
         }).select('bookName bookImage');
+        bookLogger.log('info', 'Book search data found!')
         res.status(200).send({
             success: true,
-            message: "Book Search Data",
+            message: "Book search data found!",
             bookData: bookSearchData,
         })
     } catch (error) {
+        bookLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error",
@@ -179,15 +195,17 @@ const bookDetails = async (req, res) => {
             }).select('rating')
             const totalRating = reviewData.reduce((sum, review) => sum + review.rating, 0);
             const averageRating = totalRating / reviewData.length;
+            bookLogger.log('info', 'Book details found!')
             res.status(200).send({
                 success: true,
-                message: "Book Details",
+                message: "Book details found",
                 isAvailable: isAvailable,
                 bookData: bookSelectedData,
                 averageRating: averageRating,
             })
         }
     } catch (error) {
+        bookLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error",

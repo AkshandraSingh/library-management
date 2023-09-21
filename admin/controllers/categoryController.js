@@ -1,4 +1,5 @@
 const categoryModel = require('../../models/categoryModel')
+const categoryLogger = require('../../utils/categoryLogger/categoryLogger')
 
 const addCategory = async (req, res) => {
     try {
@@ -6,11 +7,13 @@ const addCategory = async (req, res) => {
         const categoryData = new categoryModel(req.body)
         // Save the category data
         await categoryData.save()
+        categoryLogger.log('info', 'Category created!')
         res.status(201).send({
             success: true,
             message: "Category created!",
         })
     } catch (error) {
+        categoryLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error!",
@@ -31,6 +34,7 @@ const editCategory = async (req, res) => {
             categoryData.categoryName = req.body.categoryName
             // Save the category data
             await categoryData.save()
+            categoryLogger.log('info', 'Category edited!')
             res.status(200).send({
                 success: true,
                 message: "Category edited!"
@@ -43,6 +47,7 @@ const editCategory = async (req, res) => {
             })
         }
     } catch (error) {
+        categoryLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error!",
@@ -57,11 +62,13 @@ const deleteCategory = async (req, res) => {
         const { categoryId } = req.params
         // takeing the category data form database if it present and delete
         const categoryData = await categoryModel.findByIdAndDelete(categoryId)
+        categoryLogger.log('info', 'Category deleted')
         res.status(200).send({
             success: true,
             message: "Category deleted!"
         })
     } catch (error) {
+        categoryLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error!",
@@ -74,12 +81,14 @@ const allCategory = async (req, res) => {
     try {
         // Takeing all category data present in data base and show only category name and id
         const categoryData = await categoryModel.find({}).select('categoryName')
+        categoryLogger.log('info', 'All category')
         res.status(200).send({
             success: true,
             message: "All category",
             category: categoryData,
         })
     } catch (error) {
+        categoryLogger.log('error', `Error: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error!",
