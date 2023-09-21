@@ -123,7 +123,7 @@ const searchBookByName = async (req, res) => {
         const bookSearchData = await bookModel.find({ bookName: { $regex: `^${bookName}`, $options: "i" } })
             .select('bookName bookImage');
         if (bookSearchData.length <= 0) {
-            // not any book found
+            // not any book found by name
             bookLogger.log('error', 'Book not found!')
             return res.status(400).send({
                 success: false,
@@ -149,7 +149,9 @@ const searchBookByName = async (req, res) => {
 
 const searchBookByCategory = async (req, res) => {
     try {
+        // Takeing category Name form params
         const { categoryName } = req.params
+        // checking is category exist in data base or not
         const isCategoryExist = await categoryModel.findOne({
             categoryName: categoryName
         })
@@ -161,6 +163,7 @@ const searchBookByCategory = async (req, res) => {
                 message: "Category not exist in database",
             })
         }
+        // Extract the book data form data base and show only bookName bookImage
         const bookSearchData = await bookModel.find({
             bookCategory: categoryName
         }).select('bookName bookImage');
@@ -182,17 +185,25 @@ const searchBookByCategory = async (req, res) => {
 
 const bookDetails = async (req, res) => {
     try {
+        // Takeing bookId form params
         const { bookId } = req.params
+        // finding whole book data form bookId
         const bookData = await bookModel.findById(bookId)
+        // select the only data which user can see
         const bookSelectedData = await bookModel.findById(bookId).select('bookName bookDescription bookAuthor bookCategory bookImage bookCost')
+        // if book data found in data base
         if (bookData) {
+            // checking the book is Available 
             let isAvailable = "Available"
+            // if book is not Available
             if (bookData.bookStatus != "Available") {
                 isAvailable = "not available"
             }
+            // finding the review data and extract only rating
             const reviewData = await reviewModel.find({
                 bookId: bookId
             }).select('rating')
+            // calculating the average rating of book
             const totalRating = reviewData.reduce((sum, review) => sum + review.rating, 0);
             const averageRating = totalRating / reviewData.length;
             bookLogger.log('info', 'Book details found!')
@@ -202,6 +213,13 @@ const bookDetails = async (req, res) => {
                 isAvailable: isAvailable,
                 bookData: bookSelectedData,
                 averageRating: averageRating,
+            })
+        } else {
+            // if book not found
+            bookLogger.log('error', 'Book not found!')
+            res.status(401).send({
+                success: false,
+                message: "Book not found!"
             })
         }
     } catch (error) {
