@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 
 const userModel = require('../../models/userModel')
 const transporter = require('../../services/emailService')
+const userLogger = require('../../utils/userLogger/userLogger')
 
 const signupUser = async (req, res) => {
     try {
@@ -25,18 +26,21 @@ const signupUser = async (req, res) => {
             userData.usedPasswords.push(userData.userPassword)
             // save the user information  
             await userData.save()
+            userLogger.log('info', 'User created successfully')
             res.status(201).send({
                 success: true,
                 message: "User created successfully"
             })
         } else {
             // if user email or user phone number already exist in database 
+            userLogger.log('error', 'User email or phone is already in use!')
             res.status(400).send({
                 success: false,
                 message: "User email or phone is already in use!",
             })
         }
     } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error occur",
@@ -54,6 +58,7 @@ const loginUser = async (req, res) => {
         const isPasswordCorrect = await bcrypt.compare(userPassword, userData.userPassword) // compare the userPassword from actual password
         if (isPasswordCorrect) {
             const token = await jwt.sign({ userData }, process.env.SECRET_KEY, { expiresIn: '1h' }) // generating token
+            userLogger.log('info', 'User login success!')
             return res.status(200).send({
                 success: true,
                 message: "User login success!",
@@ -61,11 +66,13 @@ const loginUser = async (req, res) => {
             })
         }
         // if user password is incorrect
+        userLogger.log('error', 'User password or email is incorrect!')
         res.status(401).send({
             success: false,
             message: "User password or email is incorrect!"
         })
     } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error occur",
@@ -90,6 +97,7 @@ const forgetPassword = async (req, res) => {
                 subject: "Reset Password",
                 html: `<a href=${link}>Link for reset Password</a>`
             })
+            userLogger.log('info', 'User got the mail for reset their password')
             res.status(200).send({
                 success: true,
                 message: "We just send you a mail!",
@@ -98,12 +106,14 @@ const forgetPassword = async (req, res) => {
             })
         } else {
             // if user email is not present in database
+            userLogger.log('error', `User not found!`)
             res.status(400).send({
                 success: false,
                 message: "User not found!"
             })
         }
     } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error occur",
@@ -144,12 +154,14 @@ const resetPassword = async (req, res) => {
                         // adding bcrypt password to usedPassword array
                         userData.usedPasswords.push(bcryptPassword)
                         await userData.save()
+                        userLogger.log('info', 'User password is updated!')
                         res.status(200).send({
                             success: true,
                             message: "Your password is updated!",
                         })
                     } else {
                         // if user already use their password in past
+                        userLogger.log('error', 'User already use this password at past')
                         res.status(401).send({
                             success: false,
                             message: "Your already use this password at past",
@@ -157,6 +169,7 @@ const resetPassword = async (req, res) => {
                     }
                 } else {
                     // if new password and confirm password not match
+                    userLogger.log('error', 'New password not match with confirm password')
                     res.status(400).send({
                         success: false,
                         message: "New password not match with confirm password",
@@ -164,6 +177,7 @@ const resetPassword = async (req, res) => {
                 }
             } else {
                 // if token was incorrect or expire
+                userLogger.log('info', 'Token is incorrect or expire')
                 res.status(400).send({
                     success: false,
                     message: "Token is incorrect or expire",
@@ -171,12 +185,14 @@ const resetPassword = async (req, res) => {
             }
         } else {
             // if user id is incorrect
+            userLogger.log('error', `User not found!`)
             res.status(401).send({
                 success: false,
                 message: "User not found!",
             })
         }
     } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error occur",
@@ -217,12 +233,14 @@ const setNewPassword = async (req, res) => {
                         // adding bcrypt password to usedPassword array
                         userData.usedPasswords.push(bcryptPassword)
                         await userData.save()
+                        userLogger.log('info', 'User password is updated!')
                         res.status(200).send({
                             success: true,
                             message: "Your password is updated!",
                         })
                     } else {
                         // if user already use their password in past
+                        userLogger.log('error', 'User already use this password at past')
                         res.status(401).send({
                             success: false,
                             message: "Your already use this password at past",
@@ -230,6 +248,7 @@ const setNewPassword = async (req, res) => {
                     }
                 } else {
                     // if new password and confirm password not match
+                    userLogger.log('error', 'New password not match with confirm password')
                     res.status(400).send({
                         success: false,
                         message: "New password not match with confirm password",
@@ -237,6 +256,7 @@ const setNewPassword = async (req, res) => {
                 }
             } else {
                 // if user enter wrong old password
+                userLogger.log('error', 'User Old password is incorrect')
                 res.status(400).send({
                     success: false,
                     message: "Old password is incorrect"
@@ -244,12 +264,14 @@ const setNewPassword = async (req, res) => {
             }
         } else {
             // if user id is incorrect
+            userLogger.log('error', `User not found!`)
             res.status(401).send({
                 success: false,
                 message: "User not found!",
             })
         }
     } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
         res.status(500).send({
             success: false,
             message: "Error occur",
