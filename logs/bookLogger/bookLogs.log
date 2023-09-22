@@ -1,1 +1,10 @@
 level info: Sep-21-2023 17:36:48 	Book details found!
+level error: Sep-22-2023 18:13:10 	Error: Cannot read properties of undefined (reading 'filename')
+level error: Sep-22-2023 18:14:47 	Error: books validation failed: bookCost: Path `bookCost` is required.
+level error: Sep-22-2023 18:15:40 	Error: books validation failed: bookCost: Path `bookCost` is required.
+level error: Sep-22-2023 18:16:07 	Error: books validation failed: bookCost: Path `bookCost` is required.
+level error: Sep-22-2023 18:16:24 	Error: books validation failed: bookCost: Path `bookCost` is required.
+level error: Sep-22-2023 18:16:56 	Error: Cannot read properties of undefined (reading 'filename')
+level error: Sep-22-2023 18:17:11 	Error: books validation failed: bookCost: Path `bookCost` is required.
+level info: Sep-22-2023 18:18:22 	Book added successfully
+level info: Sep-22-2023 18:19:30 	These books found

@@ -15,7 +15,7 @@ const booksModel = new mongoose.Schema({
     },
     bookCategory: {
         type: String,
-        required: true,
+        default: 'common',
     },
     bookImage: {
         type: String,
@@ -28,6 +28,11 @@ const booksModel = new mongoose.Schema({
     bookCost: {
         type: Number,
         required: true,
+    },
+    currentOwner: {
+        type: mongoose.Types.ObjectId,
+        ref: 'user',
+        default: null,
     },
     isActive: {
         type: Boolean,

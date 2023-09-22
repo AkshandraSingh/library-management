@@ -11,7 +11,7 @@ const addBook = async (req, res) => {
         const isCategoryExist = await categoryModel.findOne({
             categoryName: req.body.bookCategory
         })
-        if (!isCategoryExist) {
+        if (!isCategoryExist && req.body.bookCategory === "common") {
             // if category not found
             bookLogger.log('error', 'Category not exist in database')
             return res.status(401).send({
@@ -26,6 +26,7 @@ const addBook = async (req, res) => {
             bookAuthor: req.body.bookAuthor,
             bookCategory: req.body.bookCategory,
             bookImage,
+            bookCost: req.body.bookCost
         });
         // save the book data
         await newBook.save();
@@ -36,8 +37,8 @@ const addBook = async (req, res) => {
             data: newBook,
         });
     } catch (error) {
-        req.file ? unlinkSync(req.file.path) : null
-        userLogger.log('error', `Error: ${error.message}`)
+        // req.file ? unlinkSync(req.file.path) : null
+        bookLogger.log('error', `Error: ${error.message}`)
         res.status(500).json({
             success: false,
             message: "Error: Unable to add the book",
