@@ -411,6 +411,56 @@ const borrowBooks = async (req, res) => {
     }
 }
 
+const returnBook = async (req, res) => {
+    try {
+        // Takeing userId and bookId form params
+        const { userId, bookId } = req.params
+        // Extracting userData
+        const userData = await userModel.findById(userId)
+        // Extracting bookData
+        const bookData = await bookModel.findById(bookId)
+        // check is userData and bookData is present in database
+        if (userData && bookData) {
+            // check in borrowBooks array bookName is present
+            if (userData.borrowBooks.includes(bookData.bookName)) {
+                // finding the index of book name in array
+                const bookNameIndex = userData.borrowBooks.indexOf(bookData.bookName)
+                // removing the book name form array
+                userData.borrowBooks.splice(bookNameIndex, 1)
+                // changing the status of book
+                bookData.status = "available"
+                // change book current owner to null
+                bookData.currentOwner = null
+                // Saving book data
+                await bookData.save()
+                // Saving book data
+                await userData.save()
+                res.status(200).send({
+                    success: true,
+                    message: "Thanks for returning book!"
+                })
+            } else {
+                res.status(400).send({
+                    success: false,
+                    message: "You not owned book!"
+                })
+            }
+        } else {
+            res.status(401).send({
+                success: false,
+                message: "User or Book data not found!"
+            })
+        }
+    } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
+
 // Exporting api
 module.exports = {
     signupUser,
@@ -421,4 +471,5 @@ module.exports = {
     viewProfile,
     editProfile,
     borrowBooks,
+    returnBook,
 }

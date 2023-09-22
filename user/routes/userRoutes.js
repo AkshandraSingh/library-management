@@ -15,5 +15,6 @@ userRouter.post('/setNewPassword/:userId', userValidator.setNewPasswordValidatio
 userRouter.get('/viewProfile/:userId', userController.viewProfile)
 userRouter.patch('/editProfile/:userId', imageStorage.profilePicUpload.single('userProfilePic'), userController.editProfile)
 userRouter.get('/borrowBooks/:userId/:bookId', userController.borrowBooks)
+userRouter.get('/returnBook/:userId/:bookId', userController.returnBook)
 
 module.exports = userRouter
