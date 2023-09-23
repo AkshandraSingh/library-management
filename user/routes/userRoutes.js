@@ -4,7 +4,7 @@ const userController = require('../controllers/userController')
 const { isUser } = require('../../middlewares/authService')
 const userValidator = require('../../validations/userValidations/userValidator')
 const imageStorage = require('../../middlewares/imageStorage')
-const { userAuthentication } = require('../../middlewares/authToken')
+const userAuthentication = require('../../middlewares/authToken')
 
 const userRouter = express.Router()
 

@@ -2,7 +2,7 @@ const express = require('express')
 
 const reviewController = require('../controllers/reviewController')
 const reviewValidation = require('../../validations/reviewValidations/reviewValidator')
-const { userAuthentication } = require('../../middlewares/authToken')
+const userAuthentication = require('../../middlewares/authToken')
 
 const reviewRouter = express.Router()
 
