@@ -352,18 +352,26 @@ const editProfile = async (req, res) => {
     }
 }
 
-// const userDashBoard = async (req,res) => {
-//     try {
-
-//     } catch (error) {
-//         userLogger.log('error', `Error occur: ${error.message}`)
-//         res.status(500).send({
-//             success: false,
-//             message: "Error occur",
-//             error: error.message
-//         })
-//     }
-// }
+const userDashBoard = async (req, res) => {
+    try {
+        // Extract only top book base on like and it shows only 5 books
+        const topBooks = await bookModel.find({})
+            .sort({ bookLikes: -1 }).limit(5)
+        userLogger.log('info', 'Top Books! Found!')
+        res.status(200).send({
+            success: true,
+            message: "Top Books!",
+            books: topBooks
+        })
+    } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
 
 // Exporting api
 module.exports = {
@@ -374,4 +382,5 @@ module.exports = {
     setNewPassword,
     viewProfile,
     editProfile,
+    userDashBoard,
 }
