@@ -352,114 +352,18 @@ const editProfile = async (req, res) => {
     }
 }
 
-const borrowBooks = async (req, res) => {
-    try {
-        // Takeing userId and bookId form params
-        const { userId, bookId } = req.params
-        // Extracting userData
-        const userData = await userModel.findById(userId)
-        // Extracting bookData
-        const bookData = await bookModel.findById(bookId)
-        // Checking is userData and bookData present
-        if (userData && bookData) {
-            // Checking is user own more than 2 or 2 book at one time
-            if (userData.borrowBooks.length >= 2) {
-                userLogger.log('error', 'You already owned 2 books,First return!')
-                return res.status(401).send({
-                    success: false,
-                    message: "You already owned 2 books,First return!"
-                })
-            }
-            // checking book status is not equal to available
-            if (bookData.bookStatus != "available") {
-                userLogger.log('error', 'This book is already by someone')
-                return res.status(401).send({
-                    success: false,
-                    message: "This book is already by someone"
-                })
-            }
-            // Changing data
-            bookData.currentOwner = userId
-            bookData.bookStatus = "not available"
-            userData.borrowBooks.push(bookData.bookName)
-            // Saving book data
-            await bookData.save();
-            // Saving user data
-            await userData.save();
-            // If user don't own 2 books at time and book is available
-            userLogger.log('info', 'User successfully borrow book')
-            res.status(200).send({
-                success: true,
-                message: "You can take your book from nearest our Library",
-                greet: "Thanks for visiting 🙏🏻",
-            })
-        } else {
-            // if userId or bookId is not in database
-            userLogger.log('error', 'User or Book data not found!')
-            res.status(400).send({
-                success: false,
-                message: "User or Book data not found!"
-            })
-        }
-    } catch (error) {
-        userLogger.log('error', `Error occur: ${error.message}`)
-        res.status(500).send({
-            success: false,
-            message: "Error occur",
-            error: error.message
-        })
-    }
-}
+// const userDashBoard = async (req,res) => {
+//     try {
 
-const returnBook = async (req, res) => {
-    try {
-        // Takeing userId and bookId form params
-        const { userId, bookId } = req.params
-        // Extracting userData
-        const userData = await userModel.findById(userId)
-        // Extracting bookData
-        const bookData = await bookModel.findById(bookId)
-        // check is userData and bookData is present in database
-        if (userData && bookData) {
-            // check in borrowBooks array bookName is present
-            if (userData.borrowBooks.includes(bookData.bookName)) {
-                // finding the index of book name in array
-                const bookNameIndex = userData.borrowBooks.indexOf(bookData.bookName)
-                // removing the book name form array
-                userData.borrowBooks.splice(bookNameIndex, 1)
-                // changing the status of book
-                bookData.status = "available"
-                // change book current owner to null
-                bookData.currentOwner = null
-                // Saving book data
-                await bookData.save()
-                // Saving book data
-                await userData.save()
-                res.status(200).send({
-                    success: true,
-                    message: "Thanks for returning book!"
-                })
-            } else {
-                res.status(400).send({
-                    success: false,
-                    message: "You not owned book!"
-                })
-            }
-        } else {
-            res.status(401).send({
-                success: false,
-                message: "User or Book data not found!"
-            })
-        }
-    } catch (error) {
-        userLogger.log('error', `Error occur: ${error.message}`)
-        res.status(500).send({
-            success: false,
-            message: "Error occur",
-            error: error.message
-        })
-    }
-}
+//     } catch (error) {
+//         userLogger.log('error', `Error occur: ${error.message}`)
+//         res.status(500).send({
+//             success: false,
+//             message: "Error occur",
+//             error: error.message
+//         })
+//     }
+// }
 
 // Exporting api
 module.exports = {
@@ -470,6 +374,4 @@ module.exports = {
     setNewPassword,
     viewProfile,
     editProfile,
-    borrowBooks,
-    returnBook,
 }

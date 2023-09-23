@@ -2,6 +2,7 @@ const bookModel = require('../../models/booksModel');
 const categoryModel = require('../../models/categoryModel')
 const reviewModel = require('../../models/reviewsModel')
 const bookLogger = require('../../utils/bookLogger/bookLogger')
+const userModel = require('../../models/userModel')
 
 const addBook = async (req, res) => {
     try {
@@ -233,6 +234,163 @@ const bookDetails = async (req, res) => {
     }
 }
 
+const borrowBooks = async (req, res) => {
+    try {
+        // Takeing userId and bookId form params
+        const { userId, bookId } = req.params
+        // Extracting userData
+        const userData = await userModel.findById(userId)
+        // Extracting bookData
+        const bookData = await bookModel.findById(bookId)
+        // Checking is userData and bookData present
+        if (userData && bookData) {
+            // Checking is user own more than 2 or 2 book at one time
+            if (userData.borrowBooks.length >= 2) {
+                bookLogger.log('error', 'You already owned 2 books,First return!')
+                return res.status(401).send({
+                    success: false,
+                    message: "You already owned 2 books,First return!"
+                })
+            }
+            // checking book status is not equal to available
+            if (bookData.bookStatus != "available") {
+                bookLogger.log('error', 'This book is already by someone')
+                return res.status(401).send({
+                    success: false,
+                    message: "This book is already by someone"
+                })
+            }
+            // Changing data
+            bookData.currentOwner = userId
+            bookData.bookStatus = "not available"
+            userData.borrowBooks.push(bookData.bookName)
+            // Saving book data
+            await bookData.save();
+            // Saving user data
+            await userData.save();
+            // If user don't own 2 books at time and book is available
+            bookLogger.log('info', 'User successfully borrow book')
+            res.status(200).send({
+                success: true,
+                message: "You can take your book from nearest our Library",
+                greet: "Thanks for visiting 🙏🏻",
+            })
+        } else {
+            // if userId or bookId is not in database
+            userLogger.log('error', 'User or Book data not found!')
+            res.status(400).send({
+                success: false,
+                message: "User or Book data not found!"
+            })
+        }
+    } catch (error) {
+        userLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
+
+const returnBook = async (req, res) => {
+    try {
+        // Takeing userId and bookId form params
+        const { userId, bookId } = req.params
+        // Extracting userData
+        const userData = await userModel.findById(userId)
+        // Extracting bookData
+        const bookData = await bookModel.findById(bookId)
+        // check is userData and bookData is present in database
+        if (userData && bookData) {
+            // check in borrowBooks array bookName is present
+            if (userData.borrowBooks.includes(bookData.bookName)) {
+                // finding the index of book name in array
+                const bookNameIndex = userData.borrowBooks.indexOf(bookData.bookName)
+                // removing the book name form array
+                userData.borrowBooks.splice(bookNameIndex, 1)
+                // changing the status of book
+                bookData.status = "available"
+                // change book current owner to null
+                bookData.currentOwner = null
+                // Saving book data
+                await bookData.save()
+                // Saving user data
+                await userData.save()
+                bookLogger.log('info', 'Thanks for returning book!')
+                res.status(200).send({
+                    success: true,
+                    message: "Thanks for returning book!"
+                })
+            } else {
+                // if book is not present in borrow books array
+                bookLogger.log('error', 'You not owned book!')
+                res.status(400).send({
+                    success: false,
+                    message: "You not owned book!"
+                })
+            }
+        } else {
+            // if user data or book data not found in database
+            bookLogger.log('error', 'User or Book data not found!')
+            res.status(401).send({
+                success: false,
+                message: "User or Book data not found!"
+            })
+        }
+    } catch (error) {
+        bookLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
+
+const likeDislikeBook = async (req, res) => {
+    try {
+        const { userId, bookId } = req.params
+        const userData = await userModel.findById(userId)
+        const bookData = await bookModel.findById(bookId)
+        if (userData && bookData) {
+            if (!bookData.likeByUsers.includes(userId)) {
+                console.log('hhh')
+                bookData.likeByUsers.push(userId)
+                bookData.bookLikes = bookData.bookLikes + 1
+                bookLogger.log('info', 'User like book')
+                res.status(200).send({
+                    success: true,
+                    message: "Thanks for giving review (Like)"
+                })
+            } else {
+                const userIdIndex = bookData.likeByUsers.indexOf(userId)
+                bookData.likeByUsers.splice(userIdIndex, 1)
+                bookData.bookLikes = bookData.bookLikes - 1
+                bookLogger.log('info', 'User dislike book')
+                res.status(200).send({
+                    success: true,
+                    message: "Thanks for giving review (Dislike)"
+                })
+            }
+            bookData.save()
+        } else {
+            bookLogger.log('error', 'User or Book data not found!')
+            res.status(401).send({
+                success: false,
+                message: "User or Book data not found!"
+            })
+        }
+    } catch (error) {
+        bookLogger.log('error', `Error occur: ${error.message}`)
+        res.status(500).send({
+            success: false,
+            message: "Error occur",
+            error: error.message
+        })
+    }
+}
+
 // Exporting the API
 module.exports = {
     addBook,
@@ -241,4 +399,7 @@ module.exports = {
     searchBookByName,
     searchBookByCategory,
     bookDetails,
+    borrowBooks,
+    returnBook,
+    likeDislikeBook,
 }

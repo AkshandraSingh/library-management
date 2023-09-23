@@ -8,3 +8,9 @@ level error: Sep-22-2023 18:16:56 	Error: Cannot read properties of undefined (r
 level error: Sep-22-2023 18:17:11 	Error: books validation failed: bookCost: Path `bookCost` is required.
 level info: Sep-22-2023 18:18:22 	Book added successfully
 level info: Sep-22-2023 18:19:30 	These books found
+level error: Sep-23-2023 13:51:31 	This book is already by someone
+level error: Sep-23-2023 13:51:38 	You not owned book!
+level error: Sep-23-2023 13:54:13 	Error occur: Assignment to constant variable.
+level error: Sep-23-2023 13:55:05 	Error occur: Assignment to constant variable.
+level error: Sep-23-2023 13:56:21 	Error occur: bookData.splice is not a function
+level error: Sep-23-2023 13:56:40 	Error occur: bookData.bookLikes.splice is not a function

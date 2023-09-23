@@ -29,6 +29,14 @@ const booksModel = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    bookLikes: {
+        type: Number,
+        default: 0,
+    },
+    likeByUsers: {
+        type: [],
+        default: []
+    },
     currentOwner: {
         type: mongoose.Types.ObjectId,
         ref: 'user',
